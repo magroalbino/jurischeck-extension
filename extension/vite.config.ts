@@ -9,7 +9,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: 'extension/src/popup/index.html',
-        content: 'extension/src/content/contentScript.js'
+        content: 'extension/src/content/content.ts'
+        background: 'extension/src/background.ts'
       },
       output: {
         format: 'iife', // Formato recomendado para extensões
