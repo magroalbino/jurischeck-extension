@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "JurisCheck",
+  "version": "1.0.0",
+  "description": "Verificador de jurisprudência e sugestões jurídicas.",
+  "icons": {
+    "16": "public/icons/icon16.png",
+    "48": "public/icons/icon48.png",
+    "128": "public/icons/icon128.png"
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "extension/src/background/serviceWorker.js"
+  },
+  "action": {
+    "default_popup": "extension/src/popup/index.html",
+    "default_icon": "public/icons/icon16.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["extension/src/content/contentScript.js"]
+    }
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ]
+}
+
