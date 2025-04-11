@@ -13,19 +13,19 @@
     "storage",
     "tabs"
   ],
-  "background": {
-    "service_worker": "extension/src/background/serviceWorker.js"
-  },
+"background": {
+  "service_worker": "dist/assets/background.js"
+},
   "action": {
     "default_popup": "extension/src/popup/index.html",
     "default_icon": "public/icons/icon16.png"
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["extension/src/content/contentScript.js"]
-    }
-  ],
+"content_scripts": [
+  {
+    "matches": ["<all_urls>"],
+    "js": ["dist/assets/content.js"]
+  }
+],
   "host_permissions": [
     "http://*/*",
     "https://*/*"

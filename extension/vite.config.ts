@@ -8,8 +8,8 @@ export default defineConfig({
     outDir: 'extension/dist',
     rollupOptions: {
       input: {
-        popup: 'extension/src/popup/index.html',
-        content: 'extension/src/content/contentScript.js'
+        popup: 'extension/src/popup.tsx',
+        content: 'extension/src/content.ts'
       },
       output: {
         format: 'iife', // Formato recomendado para extensões
