@@ -1,42 +1,48 @@
-# JurisCheck-extension
+# 🧠 JurisCheck Extension – Extensão Inteligente para Jurisprudência
+JurisCheck é uma extensão para navegadores (Manifest V3) que utiliza inteligência artificial para verificar jurisprudências e sugerir precedentes jurídicos relevantes com base em textos selecionados diretamente nas páginas.
+
+🔍 Ideal para estudantes de Direito, advogados e profissionais que atuam com petições e análise jurisprudencial.
 
 ## 📁 Estrutura do Projeto: jurischeck-extension (Manifest V3 + React + Node.js backend)
 
 ## 📦 Estrutura de Pastas
-- `jurischeck-extension/`
-  - `extension/` – Código da extensão (frontend)
-    - `public/` – Ícones, imagens e arquivos estáticos
-    - `manifest.json` – Manifesto V3 da extensão
-    - `vite.config.ts` – Configuração com Vite
-    - `src/`
-      - `components/` – Componentes React reutilizáveis
-      - `popup/` – Interface principal da extensão
-      - `content/` – Scripts que interagem com páginas abertas
-      - `background/` – Scripts de background (eventos e lifecycle)
-      - `utils/` – Funções auxiliares
-      - `features/` – Funcionalidades centrais
-        - `TextAnalyzer.ts` – Analisa e extrai temas do texto
-        - `SuggestionList.tsx` – Exibe sugestões de jurisprudência
-        - `CitationGenerator.ts` – Gera citação formatada para petições
-        - `FloatingButton.tsx` – Botão flutuante para ativar extensão
-      - `index.tsx` – Entrada principal do React
-  - `backend/` – Backend da IA (verificador de jurisprudência)
-    - `index.js` – Servidor Express
-    - `routes/`
-      - `verify.js` – Verificação de jurisprudência
-      - `suggest.js` – Sugestão de jurisprudência
-    - `services/`
-      - `aiService.js` – Conecta à IA (ChatGPT, Claude, etc.)
-      - `scrapingService.js` – Scraper de sites jurídicos
-      - `nlpService.js` – Processamento de linguagem natural
-      - `jurisSearch.js` – Busca direta por jurisprudência
-      - `linkFinder.js` – Localiza links oficiais (STJ, STF, etc.)
-    - `utils/`
-      - `formatUtils.js` – Formatação das respostas
-    - `package.json` – Dependências do backend
-  - `README.md` – Documentação do projeto
+```
+jurischeck-extension/
+├── extension/                     # Código da extensão (frontend)
+│   ├── public/                   # Ícones, imagens e arquivos estáticos
+│   │   └── icons/                # Ícones da extensão (16, 48, 128 px etc.)
+│   ├── manifest.json             # Manifesto V3 da extensão
+│   ├── vite.config.ts            # Configuração do Vite
+│   ├── tsconfig.json             # Configuração do TypeScript
+│   └── src/                      # Código-fonte da extensão
+│       ├── components/           # Componentes React reutilizáveis
+│       │   └── loader.tsx        # Indicador de carregamento
+│       ├── popup/                # Interface do popup da extensão
+│       │   ├── popup.tsx         # Componente principal da UI
+│       │   ├── main.tsx          # Entrada que renderiza o React
+│       │   └── index.html        # HTML base do popup
+│       ├── background.ts         # Script de background (service worker)
+│       ├── content.ts            # Script que interage com o conteúdo da aba
+│       ├── api.ts                # Módulo de chamada ao backend
+│       └── types.ts              # Tipagens auxiliares
+├── backend/                      # Backend Node.js com integração de IA
+│   ├── index.js                  # Servidor Express principal
+│   ├── routes/                   # Rotas da API
+│   │   ├── verify.js             # Verificação de jurisprudência por ID
+│   │   └── suggest.js            # Sugestão de jurisprudência com base em texto
+│   ├── services/                 # Serviços externos e IA
+│   │   ├── aiService.js          # Integração com IA (ChatGPT, Claude, etc.)
+│   │   ├── scrapingService.js    # Scraping de sites jurídicos
+│   │   ├── nlpService.js         # Análise de linguagem natural
+│   │   ├── jurisSearch.js        # Busca direta por jurisprudência
+│   │   └── linkFinder.js         # Busca por links oficiais (STF, STJ, etc.)
+│   ├── utils/                    # Utilitários e formatação
+│   │   └── formatUtils.js        # Funções de formatação das respostas
+│   └── package.json              # Dependências e scripts do backend
+└── README.md                     # Documentação do projeto
+```
 
-## 🧠 Tecnologias envolvidas:
+## ⚙️ Tecnologias envolvidas:
  - Frontend: React, Vite, Manifest V3, Tailwind (opcional)
  - Backend: Node.js, Express, OpenAI/Claude API, Cheerio (scraping), NLP.js ou spaCy (via API externa)
 
@@ -55,5 +61,6 @@
 
 Este projeto ainda está em fase inicial e em constante evolução. Se você é desenvolvedor, jurista ou apenas alguém interessado em melhorar o acesso à jurisprudência de forma confiável, toda colaboração é bem-vinda!
 
-Sinta-se livre para abrir issues, sugerir melhorias ou enviar pull requests.  
-**Vamos juntos tornar o JurisCheck uma ferramenta essencial para quem trabalha com Direito no Brasil.** ⚖️💻
+Sinta-se livre para abrir issues, sugerir melhorias ou enviar pull requests.
+
+💻 **Vamos juntos tornar o JurisCheck uma ferramenta essencial para quem trabalha com Direito no Brasil.** ⚖️
