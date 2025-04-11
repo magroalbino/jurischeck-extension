@@ -8,7 +8,7 @@ JurisCheck é uma extensão para navegadores (Manifest V3) que utiliza inteligê
 ## 📦 Estrutura de Pastas
 ```
 jurischeck-extension/
-├── extension/                     # Código da extensão (frontend)
+├── extension/                    # Código da extensão (frontend)
 │   ├── public/                   # Ícones, imagens e arquivos estáticos
 │   │   └── icons/                # Ícones da extensão (16, 48, 128 px etc.)
 │   ├── manifest.json             # Manifesto V3 da extensão
