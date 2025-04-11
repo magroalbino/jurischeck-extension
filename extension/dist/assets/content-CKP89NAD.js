@@ -1,1 +1,0 @@
-const s=()=>{const e=window.getSelection();return e?e.toString():""},n=async()=>{const e=s();if(!e){alert("Selecione um texto para verificar!");return}const t=await suggestJurisprudence(e);t&&alert(`Jurisprudências sugeridas: ${t}`)};chrome.runtime.onMessage.addListener(e=>{e.action==="get_suggestions"&&n()});

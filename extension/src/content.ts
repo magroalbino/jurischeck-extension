@@ -1,5 +1,11 @@
 // src/content.ts
 
+// Mock implementation of suggestJurisprudence function
+const suggestJurisprudence = async (text: string): Promise<string[]> => {
+  // Replace this mock implementation with the actual logic or API call
+  return [`Jurisprudência relacionada a: ${text}`];
+};
+
 // Função para capturar o texto selecionado na página
 const getSelectedText = () => {
   const selection = window.getSelection();
