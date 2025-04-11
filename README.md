@@ -3,9 +3,7 @@ JurisCheck é uma extensão para navegadores (Manifest V3) que utiliza inteligê
 
 🔍 Ideal para estudantes de Direito, advogados e profissionais que atuam com petições e análise jurisprudencial.
 
-## 📁 Estrutura do Projeto: jurischeck-extension (Manifest V3 + React + Node.js backend)
-
-## 📦 Estrutura de Pastas
+## 📦 Estrutura de Pastas do Projeto (Manifest V3 + React + Node.js backend):
 ```
 jurischeck-extension/
 ├── extension/                    # Código da extensão (frontend)
