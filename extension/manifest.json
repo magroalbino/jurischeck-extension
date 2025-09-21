@@ -1,33 +1,125 @@
 {
   "manifest_version": 3,
-  "name": "JurisCheck",
-  "version": "1.0.0",
-  "description": "Verificador de jurisprudência e sugestões jurídicas.",
+  "name": "JurisCheck - Busca Inteligente de Jurisprudências",
+  "version": "1.2.0",
+  "description": "Extensão para profissionais do Direito que utiliza IA para buscar e verificar jurisprudências em tempo real. Busca em STF, STJ, TST e outros tribunais brasileiros.",
+  
+  "author": "JurisCheck Team",
+  "homepage_url": "https://github.com/magroalbino/jurischeck-extension",
+  
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
   },
+
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_title": "JurisCheck - Buscar Jurisprudências",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": ["content.js"],
+      "css": [],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ],
+
   "permissions": [
     "activeTab",
     "storage",
+    "contextMenus",
+    "scripting",
     "tabs"
   ],
-  "background": {
-    "service_worker": "assets/background.js"
-  },
-  "action": {
-    "default_popup": "popup/index.html",
-    "default_icon": "icons/icon16.png"
-  },
-  "content_scripts": [
+
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://*.stf.jus.br/*",
+    "https://*.stj.jus.br/*",
+    "https://*.tst.jus.br/*",
+    "https://*.tjsp.jus.br/*",
+    "https://*.tjrj.jus.br/*",
+    "https://*.tjmg.jus.br/*",
+    "https://*.jusbrasil.com.br/*",
+    "https://*.conjur.com.br/*",
+    "https://*.migalhas.com.br/*",
+    "https://*.planalto.gov.br/*",
+    "https://www.googleapis.com/*"
+  ],
+
+  "optional_permissions": [
+    "clipboardWrite",
+    "downloads",
+    "history"
+  ],
+
+  "web_accessible_resources": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["assets/content.js"]
+      "resources": [
+        "icons/*",
+        "assets/*",
+        "styles/*"
+      ],
+      "matches": ["<all_urls>"]
     }
   ],
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
-  ]
+
+  "commands": {
+    "search-selection": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+J",
+        "mac": "Command+Shift+J"
+      },
+      "description": "Buscar jurisprudências do texto selecionado"
+    },
+    "toggle-popup": {
+      "suggested_key": {
+        "default": "Alt+J",
+        "mac": "Alt+J"
+      },
+      "description": "Abrir/fechar popup do JurisCheck"
+    },
+    "quick-search": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Busca rápida de jurisprudências"
+    }
+  },
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline';"
+  },
+
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": false
+  },
+
+  "minimum_chrome_version": "88",
+
+  "externally_connectable": {
+    "matches": [
+      "http://localhost:3000/*"
+    ]
+  }
 }
