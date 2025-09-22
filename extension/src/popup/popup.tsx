@@ -1,4 +1,4 @@
-// src/popup.tsx
+// src/popup/popup.tsx
 
 import React, { useState, useEffect } from 'react';
 import { Search, BookOpen, ExternalLink, CheckCircle, AlertCircle, Loader2, Scale, FileText, Gavel } from 'lucide-react';
@@ -17,9 +17,11 @@ interface Jurisprudence {
 }
 
 interface SearchResult {
+  success: boolean;
   jurisprudencias: Jurisprudence[];
   totalFound: number;
   searchTime: number;
+  suggestions?: string[];
 }
 
 const JurisCheckPopup: React.FC = () => {
@@ -31,21 +33,40 @@ const JurisCheckPopup: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'search' | 'verify' | 'history'>('search');
 
   useEffect(() => {
-    // Pega texto selecionado da página atual
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]?.id) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'getSelectedText' }, (response) => {
-          if (response?.text) {
-            setSelectedText(response.text);
-            setSearchQuery(response.text);
-          }
-        });
-      }
-    });
+    // Verifica se chrome.tabs está disponível
+    if (typeof chrome !== 'undefined' && chrome.tabs) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (chrome.runtime.lastError) {
+          console.warn('Chrome extension API error:', chrome.runtime.lastError);
+          return;
+        }
+
+        if (tabs[0]?.id) {
+          chrome.tabs.sendMessage(
+            tabs[0].id,
+            { action: 'getSelectedText' },
+            (response) => {
+              if (chrome.runtime.lastError) {
+                console.warn('Message sending error:', chrome.runtime.lastError);
+                return;
+              }
+
+              if (response?.text) {
+                setSelectedText(response.text);
+                setSearchQuery(response.text);
+              }
+            }
+          );
+        }
+      });
+    }
   }, []);
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      setError('Por favor, insira um texto para busca.');
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -60,13 +81,19 @@ const JurisCheckPopup: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Erro na busca de jurisprudências');
+        throw new Error(`Erro HTTP: ${response.status}`);
       }
 
-      const data = await response.json();
-      setSearchResults(data);
+      const data: SearchResult = await response.json();
+
+      if (data.success) {
+        setSearchResults(data);
+      } else {
+        setError('Nenhuma jurisprudência encontrada para o texto informado.');
+      }
     } catch (err) {
-      setError('Erro ao buscar jurisprudências. Verifique se o backend está rodando.');
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      setError(`Erro ao buscar jurisprudências: ${errorMessage}. Verifique se o backend está rodando.`);
       console.error('Search error:', err);
     } finally {
       setLoading(false);
@@ -74,7 +101,12 @@ const JurisCheckPopup: React.FC = () => {
   };
 
   const openJurisprudence = (link: string) => {
-    chrome.tabs.create({ url: link });
+    if (typeof chrome !== 'undefined' && chrome.tabs) {
+      chrome.tabs.create({ url: link });
+    } else {
+      // Fallback para desenvolvimento
+      window.open(link, '_blank');
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -89,6 +121,13 @@ const JurisCheckPopup: React.FC = () => {
     if (relevancia >= 90) return 'text-green-600 bg-green-100';
     if (relevancia >= 70) return 'text-yellow-600 bg-yellow-100';
     return 'text-red-600 bg-red-100';
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchResults(null);
+    setError('');
+    setSelectedText('');
   };
 
   return (
@@ -107,8 +146,8 @@ const JurisCheckPopup: React.FC = () => {
         <button
           onClick={() => setActiveTab('search')}
           className={`flex-1 px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${activeTab === 'search'
-              ? 'border-b-2 border-blue-600 text-blue-600 bg-white'
-              : 'text-gray-600 hover:text-gray-800'
+            ? 'border-b-2 border-blue-600 text-blue-600 bg-white'
+            : 'text-gray-600 hover:text-gray-800'
             }`}
         >
           <Search className="w-4 h-4" />
@@ -117,8 +156,8 @@ const JurisCheckPopup: React.FC = () => {
         <button
           onClick={() => setActiveTab('verify')}
           className={`flex-1 px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${activeTab === 'verify'
-              ? 'border-b-2 border-blue-600 text-blue-600 bg-white'
-              : 'text-gray-600 hover:text-gray-800'
+            ? 'border-b-2 border-blue-600 text-blue-600 bg-white'
+            : 'text-gray-600 hover:text-gray-800'
             }`}
         >
           <CheckCircle className="w-4 h-4" />
@@ -127,8 +166,8 @@ const JurisCheckPopup: React.FC = () => {
         <button
           onClick={() => setActiveTab('history')}
           className={`flex-1 px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${activeTab === 'history'
-              ? 'border-b-2 border-blue-600 text-blue-600 bg-white'
-              : 'text-gray-600 hover:text-gray-800'
+            ? 'border-b-2 border-blue-600 text-blue-600 bg-white'
+            : 'text-gray-600 hover:text-gray-800'
             }`}
         >
           <FileText className="w-4 h-4" />
@@ -157,23 +196,35 @@ const JurisCheckPopup: React.FC = () => {
                 )}
               </div>
 
-              <button
-                onClick={handleSearch}
-                disabled={loading || !searchQuery.trim()}
-                className="w-full mt-3 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Buscando...
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-4 h-4" />
-                    Buscar Jurisprudências
-                  </>
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={handleSearch}
+                  disabled={loading || !searchQuery.trim()}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Buscando...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="w-4 h-4" />
+                      Buscar
+                    </>
+                  )}
+                </button>
+
+                {(searchQuery || searchResults || error) && (
+                  <button
+                    onClick={clearSearch}
+                    className="px-3 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Limpar busca"
+                  >
+                    ×
+                  </button>
                 )}
-              </button>
+              </div>
             </div>
 
             {/* Error Message */}
@@ -186,11 +237,11 @@ const JurisCheckPopup: React.FC = () => {
 
             {/* Search Results */}
             <div className="flex-1 overflow-y-auto">
-              {searchResults && (
+              {searchResults && searchResults.jurisprudencias && (
                 <>
                   <div className="flex items-center justify-between mb-3 pb-2 border-b">
                     <span className="text-sm text-gray-600">
-                      {searchResults.totalFound} resultados encontrados
+                      {searchResults.totalFound || searchResults.jurisprudencias.length} resultados encontrados
                     </span>
                     <span className="text-xs text-gray-500">
                       {searchResults.searchTime}ms
@@ -230,7 +281,7 @@ const JurisCheckPopup: React.FC = () => {
                           </span>
                           <button
                             onClick={() => openJurisprudence(juris.link)}
-                            className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                            className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 hover:underline"
                           >
                             <ExternalLink className="w-3 h-3" />
                             Ver original
@@ -240,6 +291,21 @@ const JurisCheckPopup: React.FC = () => {
                     ))}
                   </div>
                 </>
+              )}
+
+              {/* Sugestões */}
+              {searchResults?.suggestions && searchResults.suggestions.length > 0 && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="text-sm font-medium text-blue-800 mb-2">Sugestões:</h4>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    {searchResults.suggestions.map((suggestion, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="text-blue-400 mt-1">•</span>
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           </div>

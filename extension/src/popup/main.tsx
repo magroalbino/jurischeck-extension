@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Popup from './popup';
+import JurisCheckPopup from './popup'; // Mudança: nome correto do componente
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <Popup />
+        <JurisCheckPopup />
     </React.StrictMode>
 );

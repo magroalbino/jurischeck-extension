@@ -1,9 +1,9 @@
 // backend/index.js
 
-const express = require('express');
-const cors = require('cors');
-const verifyRoutes = require('./routes/verify');
-const suggestRoutes = require('./routes/suggest');
+import express from 'express';
+import cors from 'cors';
+import verifyRoutes from './routes/verify.js';
+import suggestRoutes from './routes/suggest.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -25,4 +25,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 });
-

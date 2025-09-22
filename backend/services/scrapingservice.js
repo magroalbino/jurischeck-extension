@@ -1,10 +1,10 @@
 // backend/services/scrapingService.js
 
-const cheerio = require('cheerio');
-const axios = require('axios');
+import cheerio from 'cheerio';
+import axios from 'axios';
 
 // Função para fazer scraping de sites de jurisprudência (exemplo com JusBrasil)
-const scrapeJurisprudence = async (jurisprudenceId) => {
+export const scrapeJurisprudence = async (jurisprudenceId) => {
   try {
     const url = `https://www.jusbrasil.com.br/jurisprudencia/doc/jurisprudencia.jsp?s=${jurisprudenceId}`;
     const response = await axios.get(url);
@@ -22,7 +22,6 @@ const scrapeJurisprudence = async (jurisprudenceId) => {
   }
 };
 
-module.exports = {
+export default {
   scrapeJurisprudence,
 };
-

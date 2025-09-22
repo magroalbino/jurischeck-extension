@@ -1,9 +1,7 @@
 // backend/services/linkFinder.js
 
-const axios = require('axios');
-
 // Função para localizar links oficiais de jurisprudência nos sites de referência (STF, STJ, JusBrasil)
-const findLinksForJurisprudence = async (jurisprudenceId) => {
+export const findLinksForJurisprudence = async (jurisprudenceId) => {
   try {
     const links = {
       STF: `https://www.stf.jus.br/jurisprudencia/doc/jurisprudencia/doc.jsp?s=${jurisprudenceId}`,
@@ -18,7 +16,6 @@ const findLinksForJurisprudence = async (jurisprudenceId) => {
   }
 };
 
-module.exports = {
+export default {
   findLinksForJurisprudence,
 };
-

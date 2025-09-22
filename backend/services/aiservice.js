@@ -1,9 +1,9 @@
 // backend/services/aiService.js
 
-const axios = require('axios');
+import axios from 'axios';
 
 // Função para verificar a jurisprudência com base no ID
-const verifyJurisprudence = async (jurisprudenceId) => {
+export const verifyJurisprudence = async (jurisprudenceId) => {
   try {
     // Simulação de integração com uma IA (OpenAI, Claude, etc.)
     const response = await axios.post('https://api.ai-service.com/verify', {
@@ -18,7 +18,7 @@ const verifyJurisprudence = async (jurisprudenceId) => {
 };
 
 // Função para sugerir jurisprudência com base no texto fornecido
-const suggestJurisprudence = async (text) => {
+export const suggestJurisprudence = async (text) => {
   try {
     // Simulação de integração com IA para sugerir jurisprudência
     const response = await axios.post('https://api.ai-service.com/suggest', {
@@ -31,9 +31,3 @@ const suggestJurisprudence = async (text) => {
     throw new Error('Não foi possível sugerir jurisprudência.');
   }
 };
-
-module.exports = {
-  verifyJurisprudence,
-  suggestJurisprudence,
-};
-

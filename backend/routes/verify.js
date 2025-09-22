@@ -1,14 +1,15 @@
 // backend/routes/verify.js
 
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
 // Como o aiservice não existe, vamos criar nossa própria função de verificação
 // ou usar o JurisSearchService existente
 let JurisSearchService;
 try {
-  JurisSearchService = require('../services/jurisSearch');
-} catch (error) {
+  const jurisSearchModule = await import('../services/jurisSearch.js');
+  JurisSearchService = jurisSearchModule.default;
+} catch {
   console.warn('JurisSearchService não encontrado. Usando verificação mock.');
 }
 
@@ -150,4 +151,4 @@ router.use((req, res, next) => {
   next();
 });
 
-module.exports = router;
+export default router;
