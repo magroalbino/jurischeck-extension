@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "JurisCheck",
+  "version": "1.0.0",
+  "description": "Busca inteligente de jurisprudências",
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_title": "JurisCheck"
+  },
+  "permissions": [
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*"
+  ]
+}
