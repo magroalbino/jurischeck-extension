@@ -1,13 +1,63 @@
 // backend/routes/suggest.js
 
 import express from 'express';
-import JurisSearchService from '../services/jurisSearch.js';
-import NLPService from '../services/nlpService.js';
-
 const router = express.Router();
 
-const jurisSearchService = new JurisSearchService();
-const nlpService = new NLPService();
+// Mock data para testes
+const mockJurisprudencias = [
+  {
+    id: "1",
+    titulo: "Direito Constitucional - Liberdade de Expressão",
+    tribunal: "STF",
+    numero: "RE 123456",
+    relator: "Min. Roberto Barroso",
+    dataJulgamento: "2024-01-15",
+    ementa: "A liberdade de expressão é garantia fundamental prevista na Constituição Federal. O exercício desse direito deve observar os limites impostos pela dignidade da pessoa humana e pelos direitos da personalidade. Precedente: ADI 4815.",
+    link: "https://portal.stf.jus.br/processos/detalhe.asp?incidente=123456",
+    relevancia: 95,
+    tema: "Direitos Fundamentais",
+    tribunal_completo: "Supremo Tribunal Federal"
+  },
+  {
+    id: "2",
+    titulo: "Processo Civil - Prova Documental Digital",
+    tribunal: "STJ",
+    numero: "REsp 789012",
+    relator: "Min. Nancy Andrighi",
+    dataJulgamento: "2024-02-10", 
+    ementa: "A prova documental produzida em meio digital possui a mesma força probatória que a prova física, desde que observadas as normas de autenticidade e integridade estabelecidas pela legislação processual vigente.",
+    link: "https://www.stj.jus.br/processo/revista/documento/mediado/?componente=ATC&sequencial=789012",
+    relevancia: 88,
+    tema: "Processo Civil",
+    tribunal_completo: "Superior Tribunal de Justiça"
+  },
+  {
+    id: "3",
+    titulo: "Direito Trabalhista - Home Office e Equipamentos",
+    tribunal: "TST",
+    numero: "RR 456789",
+    relator: "Min. Márcio Eurico Vitral Amaro",
+    dataJulgamento: "2024-03-05",
+    ementa: "O empregador deve fornecer equipamentos adequados para trabalho remoto, incluindo mobiliário ergonômico e equipamentos de informática necessários ao desempenho das funções laborais.",
+    link: "https://www.tst.jus.br/consulta-unificada",
+    relevancia: 82,
+    tema: "Direito do Trabalho",
+    tribunal_completo: "Tribunal Superior do Trabalho"
+  },
+  {
+    id: "4",
+    titulo: "LGPD - Proteção de Dados Pessoais",
+    tribunal: "STJ",
+    numero: "REsp 987654",
+    relator: "Min. Paulo de Tarso Sanseverino",
+    dataJulgamento: "2024-01-20",
+    ementa: "A Lei Geral de Proteção de Dados estabelece diretrizes claras para tratamento de dados pessoais, sendo aplicável tanto ao setor público quanto privado. Violação: multa e reparação civil.",
+    link: "https://www.stj.jus.br/processo/revista/documento/mediado/?componente=ATC&sequencial=987654",
+    relevancia: 91,
+    tema: "Proteção de Dados",
+    tribunal_completo: "Superior Tribunal de Justiça"
+  }
+];
 
 /**
  * POST /api/suggest
@@ -15,285 +65,118 @@ const nlpService = new NLPService();
  */
 router.post('/', async (req, res) => {
   try {
-    const { text, options = {} } = req.body;
+    const { text } = req.body;
+    const startTime = Date.now();
 
-    // Validação
-    if (!text || text.trim().length < 10) {
+    // Validação básica
+    if (!text || text.trim().length < 3) {
       return res.status(400).json({
-        error: 'Texto deve conter pelo menos 10 caracteres',
+        success: false,
+        error: 'Texto deve conter pelo menos 3 caracteres',
         code: 'TEXT_TOO_SHORT'
       });
     }
 
-    const startTime = Date.now();
+    console.log(`[SUGGEST] Buscando por: "${text.substring(0, 100)}..."`);
 
-    // Processa o texto com NLP para extrair termos jurídicos relevantes
-    const processedText = await nlpService.processLegalText(text);
-    
-    // Extrai palavras-chave e entidades jurídicas
-    const keywords = nlpService.extractKeywords(text);
-    const legalEntities = nlpService.extractLegalEntities(text);
-    
-    // Monta query otimizada para busca
-    const searchQuery = nlpService.buildSearchQuery(processedText, keywords, legalEntities);
+    // Busca simples por palavras-chave
+    const searchTerm = text.toLowerCase().trim();
+    const filteredResults = mockJurisprudencias.filter(juris => {
+      return juris.titulo.toLowerCase().includes(searchTerm) ||
+             juris.ementa.toLowerCase().includes(searchTerm) ||
+             juris.tema.toLowerCase().includes(searchTerm) ||
+             juris.numero.toLowerCase().includes(searchTerm) ||
+             juris.relator.toLowerCase().includes(searchTerm);
+    });
 
-    // Configurações de busca
-    const searchOptions = {
-      tribunals: options.tribunals || ['STF', 'STJ', 'TST'],
-      useGoogle: options.useGoogle !== false,
-      maxResults: options.maxResults || 15,
-      includeEmenta: options.includeEmenta !== false
-    };
+    // Ordena por relevância
+    filteredResults.sort((a, b) => b.relevancia - a.relevancia);
 
-    // Busca jurisprudências
-    const searchResults = await jurisSearchService.searchJurisprudence(searchQuery, searchOptions);
+    const searchTime = Date.now() - startTime;
 
-    // Aplica filtros de relevância específicos para o texto
-    const filteredResults = await applyContextualFilters(searchResults.jurisprudencias, text);
+    // Gera sugestões se não encontrou resultados
+    const suggestions = filteredResults.length === 0 ? [
+      'Tente usar termos mais específicos (ex: "liberdade expressão", "processo civil")',
+      'Verifique a ortografia dos termos jurídicos',
+      'Use sinônimos ou termos relacionados',
+      'Inclua o nome do tribunal (STF, STJ, TST) se souber'
+    ] : [];
 
-    // Enriquece resultados com análise contextual
-    const enrichedResults = await enrichWithContext(filteredResults, text, legalEntities);
-
-    const totalTime = Date.now() - startTime;
-
-    // Log para analytics
-    console.log(`[SUGGEST] Query: "${text.substring(0, 100)}..." | Results: ${enrichedResults.length} | Time: ${totalTime}ms`);
-
-    res.json({
-      jurisprudencias: enrichedResults,
-      totalFound: searchResults.totalFound,
-      searchTime: totalTime,
+    const response = {
+      success: true,
+      jurisprudencias: filteredResults,
+      totalFound: filteredResults.length,
+      searchTime,
+      suggestions,
       metadata: {
         originalQuery: text,
-        processedQuery: searchQuery,
-        keywords: keywords,
-        legalEntities: legalEntities,
-        sources: searchResults.sources,
-        filters: {
-          tribunals: searchOptions.tribunals,
-          useGoogle: searchOptions.useGoogle
-        }
+        searchTerms: searchTerm.split(' '),
+        tribunalsSearched: ['STF', 'STJ', 'TST'],
+        mockData: true
       }
-    });
+    };
+
+    console.log(`[SUGGEST] Encontradas ${filteredResults.length} jurisprudências em ${searchTime}ms`);
+
+    res.json(response);
 
   } catch (error) {
     console.error('Erro na sugestão de jurisprudências:', error);
     
     res.status(500).json({
+      success: false,
       error: 'Erro interno do servidor ao buscar jurisprudências',
       code: 'SEARCH_ERROR',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Erro interno'
     });
   }
 });
 
 /**
- * POST /api/suggest/advanced
- * Busca avançada com mais parâmetros
+ * GET /api/suggest/test
+ * Rota de teste para verificar se o serviço está funcionando
  */
-router.post('/advanced', async (req, res) => {
-  try {
-    const {
-      text,
-      tribunals = ['STF', 'STJ', 'TST'],
-      dateRange = null,
-      tema = null,
-      relator = null,
-      maxResults = 20
-    } = req.body;
-
-    if (!text || text.trim().length < 5) {
-      return res.status(400).json({
-        error: 'Texto é obrigatório para busca avançada',
-        code: 'TEXT_REQUIRED'
-      });
-    }
-
-    const startTime = Date.now();
-
-    // Processa texto
-    const processedText = await nlpService.processLegalText(text);
-    const searchQuery = nlpService.buildAdvancedSearchQuery(processedText, {
-      tema,
-      relator,
-      dateRange
-    });
-
-    // Busca com filtros avançados
-    const searchOptions = {
-      tribunals,
-      useGoogle: true,
-      maxResults,
-      includeEmenta: true,
-      advancedFilters: {
-        tema,
-        relator,
-        dateRange
-      }
-    };
-
-    const results = await jurisSearchService.searchJurisprudence(searchQuery, searchOptions);
-    const totalTime = Date.now() - startTime;
-
-    res.json({
-      ...results,
-      searchTime: totalTime,
-      query: {
-        original: text,
-        processed: searchQuery,
-        filters: searchOptions.advancedFilters
-      }
-    });
-
-  } catch (error) {
-    console.error('Erro na busca avançada:', error);
-    res.status(500).json({
-      error: 'Erro na busca avançada',
-      code: 'ADVANCED_SEARCH_ERROR'
-    });
-  }
+router.get('/test', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'Serviço de sugestões está funcionando',
+    availableJurisprudencias: mockJurisprudencias.length,
+    tribunals: ['STF', 'STJ', 'TST'],
+    sampleTopics: ['Direitos Fundamentais', 'Processo Civil', 'Direito do Trabalho', 'Proteção de Dados']
+  });
 });
 
 /**
  * GET /api/suggest/trending
- * Retorna temas jurídicos em alta
+ * Temas jurídicos populares
  */
-router.get('/trending', async (req, res) => {
-  try {
-    // Mock de temas trending - implementar analytics real
-    const trendingTopics = [
-      {
-        tema: 'LGPD e Proteção de Dados',
-        searches: 1250,
-        growth: '+45%',
-        tribunals: ['STF', 'STJ'],
-        keywords: ['proteção de dados', 'LGPD', 'privacidade']
-      },
-      {
-        tema: 'Direito Digital',
-        searches: 980,
-        growth: '+32%',
-        tribunals: ['STJ', 'TJs'],
-        keywords: ['marco civil', 'internet', 'digital']
-      },
-      {
-        tema: 'ESG e Sustentabilidade',
-        searches: 750,
-        growth: '+28%',
-        tribunals: ['STF', 'TST'],
-        keywords: ['sustentabilidade', 'meio ambiente', 'ESG']
-      }
-    ];
+router.get('/trending', (req, res) => {
+  const trendingTopics = [
+    {
+      tema: 'LGPD e Proteção de Dados',
+      count: 4,
+      keywords: ['proteção dados', 'LGPD', 'privacidade'],
+      tribunals: ['STF', 'STJ']
+    },
+    {
+      tema: 'Trabalho Remoto',
+      count: 3,
+      keywords: ['home office', 'trabalho remoto', 'equipamentos'],
+      tribunals: ['TST']
+    },
+    {
+      tema: 'Direitos Fundamentais',
+      count: 5,
+      keywords: ['liberdade expressão', 'dignidade humana', 'direitos fundamentais'],
+      tribunals: ['STF']
+    }
+  ];
 
-    res.json({
-      trending: trendingTopics,
-      lastUpdate: new Date().toISOString(),
-      period: '30 dias'
-    });
-
-  } catch (error) {
-    console.error('Erro ao buscar trending topics:', error);
-    res.status(500).json({
-      error: 'Erro ao carregar temas em alta',
-      code: 'TRENDING_ERROR'
-    });
-  }
+  res.json({
+    trending: trendingTopics,
+    lastUpdate: new Date().toISOString(),
+    period: 'Mock data'
+  });
 });
 
-// Funções auxiliares
-
-/**
- * Aplica filtros contextuais nos resultados
- */
-async function applyContextualFilters(results, originalText) {
-  return results.filter(result => {
-    // Remove resultados com relevância muito baixa
-    if (result.relevancia < 30) return false;
-
-    // Filtra por contexto jurídico
-    const contextMatch = nlpService.checkContextualMatch(originalText, result.ementa);
-    if (!contextMatch) return false;
-
-    return true;
-  });
-}
-
-/**
- * Enriquece resultados com contexto adicional
- */
-async function enrichWithContext(results, originalText, legalEntities) {
-  return results.map(result => {
-    // Calcula score de relevância contextual
-    const contextScore = nlpService.calculateContextScore(originalText, result.ementa);
-    
-    // Identifica citações relacionadas
-    const relatedCitations = findRelatedCitations(result, legalEntities);
-    
-    // Extrai pontos-chave da ementa
-    const keyPoints = nlpService.extractKeyPoints(result.ementa);
-
-    return {
-      ...result,
-      contextScore,
-      relatedCitations,
-      keyPoints,
-      citationFormat: generateCitationFormat(result),
-      practicalApplication: generatePracticalApplication(result)
-    };
-  });
-}
-
-/**
- * Encontra citações relacionadas
- */
-function findRelatedCitations() {
-  // Implementar lógica para encontrar citações relacionadas
-  return [];
-}
-
-/**
- * Gera formato de citação ABNT
- */
-function generateCitationFormat(result) {
-  const tribunal = result.tribunal_completo || result.tribunal;
-  const data = new Date(result.dataJulgamento).getFullYear();
-  
-  return {
-    abnt: `${tribunal}. ${result.numero}. Relator: ${result.relator}. ${data}. Disponível em: ${result.link}`,
-    apa: `${tribunal} (${data}). ${result.numero}. ${result.relator} (Relator). ${result.link}`,
-    simple: `${result.tribunal} - ${result.numero} - ${result.relator} (${data})`
-  };
-}
-
-/**
- * Gera aplicação prática
- */
-function generatePracticalApplication(result) {
-  // Usar IA para gerar sugestão de aplicação prática
-  return {
-    suggestion: "Esta jurisprudência pode ser aplicada em casos similares envolvendo os mesmos princípios jurídicos.",
-    relevantPoints: ["Princípio aplicável", "Precedente vinculante", "Contexto similar"],
-    petitionSuggestion: `Conforme entendimento do ${result.tribunal} no ${result.numero}...`
-  };
-}
-
-/**
- * Middleware de rate limiting para busca
- */
-import rateLimit from 'express-rate-limit';
-
-const searchRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 50, // máximo 50 buscas por IP
-  message: {
-    error: 'Muitas tentativas de busca. Tente novamente em 15 minutos.',
-    code: 'RATE_LIMIT_EXCEEDED'
-  },
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-// Aplica rate limiting nas rotas
-router.use('/', searchRateLimit);
 export default router;
-module.exports = router;

@@ -3,14 +3,15 @@
 import express from 'express';
 const router = express.Router();
 
-// Como o aiservice não existe, vamos criar nossa própria função de verificação
-// ou usar o JurisSearchService existente
-let JurisSearchService;
-try {
-  const jurisSearchModule = await import('../services/jurisSearch.js');
-  JurisSearchService = jurisSearchModule.default;
-} catch {
-  console.warn('JurisSearchService não encontrado. Usando verificação mock.');
+// Função para tentar carregar JurisSearchService dinamicamente
+async function loadJurisSearchService() {
+  try {
+    const jurisSearchModule = await import('../services/jurisSearch.js');
+    return jurisSearchModule.default;
+  } catch {
+    console.warn('JurisSearchService não encontrado. Usando verificação mock.');
+    return null;
+  }
 }
 
 // Função de verificação mock caso não tenha o serviço
@@ -51,6 +52,12 @@ async function mockVerifyJurisprudence(numero, tribunal) {
     }, 500); // Simula delay de rede
   });
 }
+
+// Middleware para adicionar timestamp de início da requisição
+router.use((req, res, next) => {
+  req.startTime = Date.now();
+  next();
+});
 
 // Rota GET para documentação/teste
 router.get('/', (req, res) => {
@@ -101,7 +108,9 @@ router.post('/', async (req, res) => {
 
     let result;
 
-    // Tenta usar o JurisSearchService se disponível
+    // Tenta carregar e usar o JurisSearchService se disponível
+    const JurisSearchService = await loadJurisSearchService();
+    
     if (JurisSearchService) {
       try {
         const searchService = new JurisSearchService();
@@ -143,12 +152,6 @@ router.post('/', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   }
-});
-
-// Middleware para adicionar timestamp de início da requisição
-router.use((req, res, next) => {
-  req.startTime = Date.now();
-  next();
 });
 
 export default router;
