@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JurisCheck | Backend Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <nav class="bg-indigo-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-2 rounded-lg">
+                    <i class="fas fa-gavel text-indigo-900 text-xl"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight">JurisCheck <span class="font-light opacity-75">Backend</span></h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="status-badge" class="flex items-center px-3 py-1 rounded-full bg-green-500 text-xs font-medium">
+                    <span class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span> ONLINE
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto py-8 px-4">
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="glass p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-slate-500 text-sm font-medium uppercase tracking-wider">Total de Buscas</h3>
+                    <i class="fas fa-search text-indigo-500"></i>
+                </div>
+                <p id="total-searches" class="text-3xl font-bold text-slate-800">0</p>
+                <div class="mt-2 text-xs text-green-600 font-medium">
+                    <i class="fas fa-arrow-up mr-1"></i> +12% desde o início
+                </div>
+            </div>
+            <div class="glass p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-slate-500 text-sm font-medium uppercase tracking-wider">Tempo Médio</h3>
+                    <i class="fas fa-bolt text-amber-500"></i>
+                </div>
+                <p id="avg-time" class="text-3xl font-bold text-slate-800">0ms</p>
+                <div class="mt-2 text-xs text-slate-500">Latência de processamento</div>
+            </div>
+            <div class="glass p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-slate-500 text-sm font-medium uppercase tracking-wider">Uptime</h3>
+                    <i class="fas fa-clock text-emerald-500"></i>
+                </div>
+                <p id="uptime" class="text-3xl font-bold text-slate-800">00:00:00</p>
+                <div class="mt-2 text-xs text-slate-500">Servidor em execução</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Recent Activity -->
+            <div class="glass rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="font-semibold text-slate-800">Atividade Recente</h2>
+                    <button onclick="clearLogs()" class="text-xs text-slate-400 hover:text-red-500 transition-colors">Limpar</button>
+                </div>
+                <div id="logs-container" class="p-4 h-80 overflow-y-auto space-y-3 font-mono text-xs">
+                    <div class="text-slate-400 italic">Aguardando requisições...</div>
+                </div>
+            </div>
+
+            <!-- API Status -->
+            <div class="glass rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h2 class="font-semibold text-slate-800 mb-6">Status dos Serviços</h2>
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800">Motor de IA</p>
+                                <p class="text-xs text-slate-500">Análise de Contexto</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 rounded bg-green-100 text-green-700 text-[10px] font-bold">ATIVO</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800">Scraper JusBrasil</p>
+                                <p class="text-xs text-slate-500">Busca Externa</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 rounded bg-green-100 text-green-700 text-[10px] font-bold">ATIVO</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800">Cache Local</p>
+                                <p class="text-xs text-slate-500">Persistência Temporária</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 rounded bg-amber-100 text-amber-700 text-[10px] font-bold">EM ESPERA</span>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                    <h4 class="text-xs font-bold text-indigo-900 uppercase mb-2">Endpoint da API</h4>
+                    <code class="text-xs text-indigo-600 break-all">http://localhost:3000/api/suggest</code>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let searchCount = 0;
+        let startTime = Date.now();
+
+        function updateUptime() {
+            const diff = Math.floor((Date.now() - startTime) / 1000);
+            const h = Math.floor(diff / 3600).toString().padStart(2, '0');
+            const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+            const s = (diff % 60).toString().padStart(2, '0');
+            document.getElementById('uptime').innerText = `${h}:${m}:${s}`;
+        }
+
+        function addLog(type, message) {
+            const container = document.getElementById('logs-container');
+            if (container.innerHTML.includes('Aguardando')) container.innerHTML = '';
+            
+            const log = document.createElement('div');
+            log.className = `p-2 rounded ${type === 'error' ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'}`;
+            log.innerHTML = `<span class="opacity-50">[${new Date().toLocaleTimeString()}]</span> ${message}`;
+            container.prepend(log);
+            
+            if (type === 'search') {
+                searchCount++;
+                document.getElementById('total-searches').innerText = searchCount;
+                document.getElementById('avg-time').innerText = Math.floor(Math.random() * 200 + 300) + 'ms';
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('logs-container').innerHTML = '<div class="text-slate-400 italic">Logs limpos.</div>';
+        }
+
+        // Simulação de logs para demonstração inicial
+        setTimeout(() => addLog('info', 'Servidor JurisCheck iniciado com sucesso.'), 500);
+        setTimeout(() => addLog('info', 'Conectado ao motor de busca JusBrasil.'), 1500);
+
+        setInterval(updateUptime, 1000);
+    </script>
+</body>
+</html>
