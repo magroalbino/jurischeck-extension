@@ -1,4 +1,4 @@
-# ⚖️ JurisCheck Extension
+# 🧠 JurisCheck Extension – Extensão Inteligente para Jurisprudência
 > **Inteligência Artificial aplicada à busca e análise de jurisprudência em tempo real.**
 
 O **JurisCheck** é uma extensão de navegador (Manifest V3) projetada para transformar a forma como advogados e profissionais do Direito pesquisam precedentes. Ao selecionar qualquer texto jurídico em seu navegador, a ferramenta utiliza IA para analisar o contexto, buscar acórdãos reais e fornecer um resumo executivo da aplicabilidade daquela decisão ao seu caso.
