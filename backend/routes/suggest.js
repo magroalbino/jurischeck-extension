@@ -1,7 +1,7 @@
 // backend/routes/suggest.js
 import express from 'express';
 import JurisSearchService from '../services/jurissearch.js';
-import { analyzeLegalText } from '../services/aiservice.js';
+import { analyzeLegalText, generateExecutiveSummary } from '../services/aiservice.js';
 
 const router = express.Router();
 const searchService = new JurisSearchService();
@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
       });
     }
 
-    console.log('[ROUTE] Processando pedido de sugestão...');
+    console.log('[ROUTE] Processando pedido de sugestão com IA Avançada...');
 
     // 1. Analisa o texto para extrair a melhor query de busca
     const analysis = await analyzeLegalText(text);
@@ -30,11 +30,22 @@ router.post('/', async (req, res) => {
     // 2. Realiza a busca real
     const searchResult = await searchService.searchJurisprudence(query);
 
+    // 3. Para cada resultado, gera um resumo executivo e match score (IA Avançada)
+    const enrichedResults = await Promise.all(
+      searchResult.jurisprudencias.map(async (juris) => {
+        const aiEnrichment = await generateExecutiveSummary(text, juris);
+        return {
+          ...juris,
+          aiAnalysis: aiEnrichment
+        };
+      })
+    );
+
     res.json({
       success: true,
       analysis,
-      jurisprudencias: searchResult.jurisprudencias,
-      totalFound: searchResult.totalFound,
+      jurisprudencias: enrichedResults,
+      totalFound: enrichedResults.length,
       searchTime: searchResult.searchTime
     });
 
@@ -49,13 +60,12 @@ router.post('/', async (req, res) => {
 
 /**
  * GET /api/suggest/test
- * Rota de teste para verificar se o serviço está funcionando
  */
 router.get('/test', (req, res) => {
   res.json({
     status: 'OK',
-    message: 'Serviço de sugestões JurisCheck está funcionando com busca real.',
-    tribunals: ['STF', 'STJ', 'TST', 'JusBrasil']
+    message: 'Serviço JurisCheck IA Avançada ativo.',
+    features: ['Executive Summary', 'Match Score', 'Real Search']
   });
 });
 
