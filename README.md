@@ -1,64 +1,67 @@
-# 🧠 JurisCheck Extension – Extensão Inteligente para Jurisprudência
-JurisCheck é uma extensão para navegadores (Manifest V3) que utiliza inteligência artificial para verificar jurisprudências e sugerir precedentes jurídicos relevantes com base em textos selecionados diretamente nas páginas.
+# ⚖️ JurisCheck Extension
+> **Inteligência Artificial aplicada à busca e análise de jurisprudência em tempo real.**
 
-🔍 Ideal para estudantes de Direito, advogados e profissionais que atuam com petições e análise jurisprudencial.
+O **JurisCheck** é uma extensão de navegador (Manifest V3) projetada para transformar a forma como advogados e profissionais do Direito pesquisam precedentes. Ao selecionar qualquer texto jurídico em seu navegador, a ferramenta utiliza IA para analisar o contexto, buscar acórdãos reais e fornecer um resumo executivo da aplicabilidade daquela decisão ao seu caso.
 
-## 📦 Estrutura de Pastas do Projeto (Manifest V3 + React + Node.js backend):
-```
-jurischeck-extension/
-├── extension/                    # Código da extensão (frontend)
-│   ├── public/                   # Ícones, imagens e arquivos estáticos
-│   │   └── icons/                # Ícones da extensão (16, 48, 128 px etc.)
-│   ├── manifest.json             # Manifesto V3 da extensão
-│   ├── vite.config.ts            # Configuração do Vite
-│   ├── tsconfig.json             # Configuração do TypeScript
-│   └── src/                      # Código-fonte da extensão
-│       ├── components/           # Componentes React reutilizáveis
-│       │   └── loader.tsx        # Indicador de carregamento
-│       ├── popup/                # Interface do popup da extensão
-│       │   ├── popup.tsx         # Componente principal da UI
-│       │   ├── main.tsx          # Entrada que renderiza o React
-│       │   └── index.html        # HTML base do popup
-│       ├── background.ts         # Script de background (service worker)
-│       ├── content.ts            # Script que interage com o conteúdo da aba
-│       ├── api.ts                # Módulo de chamada ao backend
-│       └── types.ts              # Tipagens auxiliares
-├── backend/                      # Backend Node.js com integração de IA
-│   ├── index.js                  # Servidor Express principal
-│   ├── routes/                   # Rotas da API
-│   │   ├── verify.js             # Verificação de jurisprudência por ID
-│   │   └── suggest.js            # Sugestão de jurisprudência com base em texto
-│   ├── services/                 # Serviços externos e IA
-│   │   ├── aiService.js          # Integração com IA (ChatGPT, Claude, etc.)
-│   │   ├── scrapingService.js    # Scraping de sites jurídicos
-│   │   ├── nlpService.js         # Análise de linguagem natural
-│   │   ├── jurisSearch.js        # Busca direta por jurisprudência
-│   │   └── linkFinder.js         # Busca por links oficiais (STF, STJ, etc.)
-│   ├── utils/                    # Utilitários e formatação
-│   │   └── formatUtils.js        # Funções de formatação das respostas
-│   └── package.json              # Dependências e scripts do backend
-└── README.md                     # Documentação do projeto
-```
+---
 
-## ⚙️ Tecnologias envolvidas:
- - Frontend: React, Vite, Manifest V3, Tailwind (opcional)
- - Backend: Node.js, Express, OpenAI/Claude API, Cheerio (scraping), NLP.js ou spaCy (via API externa)
+## ✨ Funcionalidades Principais
 
-## ▶️ Para rodar o projeto:
- 1. Ir até `/backend` e rodar `npm install && node index.js`
- 2. Ir até `/extension` e rodar `npm install && npm run dev`
- 3. Carregar a extensão no Chrome via "Modo de Desenvolvedor" > "Carregar sem compactação"
+- **🔍 Busca Contextual Inteligente**: Selecione um parágrafo de uma petição ou notícia e encontre jurisprudências relacionadas instantaneamente.
+- **🤖 Resumo Executivo com IA**: Cada resultado inclui uma análise automática explicando *por que* aquela decisão é relevante para o seu texto.
+- **📊 Match Jurídico (%)**: Indicador visual de compatibilidade entre o seu caso e o precedente encontrado.
+- **📜 Histórico de Pesquisas**: Acesso rápido às suas últimas 20 buscas, salvas localmente para sua conveniência.
+- **🖥️ Dashboard do Backend**: Painel administrativo para monitorar o status do servidor, latência e atividade em tempo real.
+- **🌐 Busca Real**: Integração com fontes públicas (como JusBrasil) para trazer dados atualizados de tribunais como STF, STJ e TST.
 
-## ✅ Com isso, você terá uma extensão que:
- - Analisa o texto selecionado e extrai temas jurídicos
- - Sugere jurisprudências reais e relevantes
- - Verifica se jurisprudência existente é real
- - Gera citações para petições com link oficial e explicação
+---
 
-## 🚀 Contribua com o JurisCheck
+## 🛠️ Estrutura do Projeto
 
-Este projeto ainda está em fase inicial e em constante evolução. Se você é desenvolvedor, jurista ou apenas alguém interessado em melhorar o acesso à jurisprudência de forma confiável, toda colaboração é bem-vinda!
+O ecossistema JurisCheck é dividido em duas partes principais:
 
-Sinta-se livre para abrir issues, sugerir melhorias ou enviar pull requests.
+### 1. Extension (`/extension`)
+Interface do usuário construída com **React**, **Vite** e **Tailwind CSS**. Gerencia a captura de texto, o histórico local e a exibição dos resultados enriquecidos por IA.
 
-💻 **Vamos juntos tornar o JurisCheck uma ferramenta essencial para quem trabalha com Direito no Brasil.** ⚖️
+### 2. Backend (`/backend`)
+Servidor **Node.js** com **Express** que orquestra:
+- **IA Service**: Processamento de linguagem natural para extração de termos e geração de resumos.
+- **Search Service**: Motor de busca real com lógica de scraping e detecção de tribunais.
+- **Dashboard**: Interface web para monitoramento do sistema.
+
+---
+
+## 🚀 Como Instalar e Usar (Passo a Passo)
+
+### Passo 1: Configurar o Backend
+O backend é o "cérebro" da extensão. Ele precisa estar rodando para que as buscas funcionem.
+1. Abra o terminal na pasta `backend`.
+2. Instale as dependências: `npm install`.
+3. Inicie o servidor: `npm start`.
+4. Verifique se o dashboard está ativo em: `http://localhost:3000`.
+
+### Passo 2: Adicionar a Extensão ao Navegador
+1. No Chrome ou Edge, acesse o endereço: `chrome://extensions`.
+2. No canto superior direito, ative o **"Modo do desenvolvedor"**.
+3. Clique no botão **"Carregar sem compactação"** (Load unpacked).
+4. Selecione a pasta `extension` (ou a pasta `dist` dentro de extension, se você já tiver feito o build).
+5. O ícone do JurisCheck aparecerá na sua barra de ferramentas!
+
+### Passo 3: Utilizar na Prática
+1. Navegue em qualquer site jurídico ou portal de notícias.
+2. **Selecione um texto** que você deseja pesquisar.
+3. Clique no ícone da extensão ou use o atalho (configurável).
+4. Veja a IA analisar o texto e trazer os melhores precedentes com resumos exclusivos.
+
+---
+
+## ⚙️ Requisitos Técnicos
+- **Node.js** (v16 ou superior)
+- **Navegador** baseado em Chromium (Chrome, Edge, Brave, Opera)
+
+---
+
+## ⚖️ Contribuição e Licença
+Este projeto é uma ferramenta de apoio e não substitui a análise técnica de um profissional do Direito. Contribuições são bem-vindas via Pull Requests.
+
+**Desenvolvido por JurisCheck Team** ⚖️
