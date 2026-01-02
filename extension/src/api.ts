@@ -1,6 +1,6 @@
 // src/api.ts
 
-const API_URL = 'http://localhost:5000'; // URL do backend, ajuste conforme necessário
+const API_URL = 'http://localhost:3000'; // URL do backend, ajuste conforme necessário
 
 // Função para verificar se a jurisprudência existe
 export const verifyJurisprudence = async (jurisprudenceId: string) => {
