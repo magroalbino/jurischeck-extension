@@ -44,7 +44,7 @@ O backend é o "cérebro" da extensão. Ele precisa estar rodando para que as bu
 1. No Chrome ou Edge, acesse o endereço: `chrome://extensions`.
 2. No canto superior direito, ative o **"Modo do desenvolvedor"**.
 3. Clique no botão **"Carregar sem compactação"** (Load unpacked).
-4. Selecione a pasta `extension` (ou a pasta `dist` dentro de extension, se você já tiver feito o build).
+4. Selecione a pasta **`extension/dist`** (esta pasta contém os arquivos compilados necessários para o funcionamento).
 5. O ícone do JurisCheck aparecerá na sua barra de ferramentas!
 
 ### Passo 3: Utilizar na Prática
